@@ -1,76 +1,64 @@
-const booksModel = require("../model/library_model");
+const books_model = require("../model/library_model");
 
-async function create(req, res) {
-  const newBook = new booksModel.book(req.body);
+async function create_books(req, res) {
+  const newBook = new books_model.book(req.body);
   try {
     await newBook.save();
-    res.send({ message: "Book created successfully", status: "200" });
+    res.send({ message: "Libro Creado Exitosamente!", status: "200" });
   } catch (err) {
     console.log(err);
-    res.status(500).send({ message: "Internal server error", status: "500" });
+    res.status(500).send({ message: "Server Error", status: "500" });
   }
 }
 
-async function get(req, res) {
+async function get_books(req, res) {
   try {
-    const bookID = req.params.id;
-    let data;
-
-    if (bookID) {
-      // Get one book
-      const book = await booksModel.book.findOne({ id: bookID });
-      if (!book) {
-        return res
-          .status(404)
-          .send({ message: "Book not found", status: "404" });
-      }
-      data = book;
-    } else {
-      // Get all books
-      data = await booksModel.book.find();
+    const data = await books_model.book.find();
+    if (data.length===0)
+    {
+      return res.status(404).send({ message: "No se encuentra el libro!", status: "404" });
     }
-
     res.send({
-      message: "Data obtained successfully",
+      message: "La información del Libro se obtuvo correctamente!",
       status: "200",
       data: data,
     });
+
   } catch (err) {
-    res.status(500).send({ message: "Internal server error", status: "500" });
+    res.status(500).send({ message: "Server error", status: "500" });
   }
 }
 
-async function deleteb(req, res) {
+async function delete_books(req, res) {
   try {
-    const bookID = req.params.id;
-    console.log(bookID);
-    await booksModel.book.deleteOne({ id: bookID });
-    res.send({ message: "Book deleted successfully", status: "200" });
+    const book_id = req.params.id;
+    await books_model.book.findByIdAndDelete(book_id)
+    res.send({ message: "El libro se elimino correctamente", status: "200" });
   } catch (err) {
-    res.status(500).send({ message: "Internal server error", status: "500" });
+    res.status(500).send({ message: "Server error", status: "500" });
   }
 }
 
-async function update(req, res) {
+async function update_books(req, res) {
   try {
-    const bookID = req.params.id;
-    const updatedBook = await booksModel.book.findOneAndUpdate(
-      { id: bookID },
+    const book_id = req.params.id;
+    const updatedBook = await books_model.book.findByIdAndUpdate(
+      book_id,
       req.body,
       { new: true }
     );
     if (!updatedBook) {
-      return res.status(404).send({ message: "Book not found", status: "404" });
+      return res.status(404).send({ message: "No se encuentra el libro!", status: "404" });
     }
-    res.send({ message: "Book updated successfully", status: "200" });
+    res.send({ message: "El libro se actualizo correctamente!", status: "200" });
   } catch (err) {
-    res.status(500).send({ message: "Internal server error", status: "500" });
+    res.status(500).send({ message: "Server Error", status: "500" });
   }
 }
 
 module.exports = {
-  create,
-  get,
-  deleteb,
-  update,
+  create_books,
+  get_books,
+  delete_books,
+  update_books,
 };

@@ -1,92 +1,64 @@
+const booksshelves_model = require("../model/library_model");
 
-const Model = require("../model/libraryModel");
-
-async function Create(req, res) {
-  const { id, position, category } = req.body;
-  const newShelf = new Model.shelf({ id, position, category });
+async function create_bookshelves(req, res) {
+  const newBookshelf = new booksshelves_model.bookshelf(req.body);
   try {
-    await newShelf.save();
-    res.send({ message: "There is a New BookShelf", status: "200" });
+    await newBookshelf.save();
+    res.send({ message: "Estante Creado Exitosamente!", status: "200" });
   } catch (err) {
-    res.status(500).send({ message: "Internal server error", status: "500" });
+    console.log(err);
+    res.status(500).send({ message: "Server Error", status: "500" });
   }
 }
 
-async function Read(req, res) {
+async function get_bookshelves(req, res) {
   try {
-    const shelfID = req.params.id;
-    let data;
-
-    if (shelfID) {
-      const shelf = await Model.shelf.findOne({ id: shelfID });
-      if (shelf) {
-        const books = await Model.book.find({
-          id: { $in: shelf.booksID },
-        });
-        shelf.booksID = books;
-      } else {
-        return res
-          .status(404)
-          .send({ message: "There is no Shelf", status: "404" });
-      }
-      data = shelf;
-    
+    const data = await booksshelves_model.bookshelf.find();
+    if (data.length===0)
+    {
+      return res.status(404).send({ message: "No se encuentra el estante!", status: "404" });
     }
-
     res.send({
-      message: "Data obtained successfully",
+      message: "Los datos del estante se obtuvieron correctamente!",
       status: "200",
       data: data,
     });
+
   } catch (err) {
-    res.status(500).send({ message: "Internal server error", status: "500" });
+    res.status(500).send({ message: "Server error", status: "500" });
   }
 }
 
-async function Update(req, res) {
+async function delete_bookshelves(req, res) {
   try {
-    const shelfID = req.params.id;
-    const updatedShelf = await Model.shelf.findOneAndUpdate(
-      { id: shelfID },
+    const bookshelf_id = req.params.id;
+    await booksshelves_model.bookshelf.findByIdAndDelete(bookshelf_id)
+    res.send({ message: "El estante se elimino correctamente", status: "200" });
+  } catch (err) {
+    res.status(500).send({ message: "Server error", status: "500" });
+  }
+}
+
+async function update_bookshelves(req, res) {
+  try {
+    const bookshelf_id = req.params.id;
+    const updatedBookshelf = await booksshelves_model.bookshelf.findByIdAndUpdate(
+      bookshelf_id,
       req.body,
       { new: true }
     );
-    if (!updatedShelf) {
-      return res
-        .status(404)
-        .send({ message: "There is no Shelf", status: "404" });
+    if (!updatedBookshelf) {
+      return res.status(404).send({ message: "No se encuentra el estante!", status: "404" });
     }
-    res.send({
-      message: "Update",
-      status: "200",
-      shelf: updatedShelf,
-    });
+    res.send({ message: "El estante se actualizo correctamente!", status: "200" });
   } catch (err) {
-    res.status(500).send({ message: "Internal server error", status: "500" });
-  }
-}
-
-async function Delete(req, res) {
-  const shelfID = req.params.id;
-  const shelf = await Model.shelf.findOne({
-    id: shelfID,
-  });
-  if (shelf) {
-    try {
-      await Model.shelf.deleteOne({ id: shelfID });
-      res.send({ message: "Shelf deleted successfully", status: "200" });
-    } catch (err) {
-      res.status(500).send({ message: "Internal server error", status: "500" });
-    }
-  } else {
-    res.status(404).send({ message: "Shelf not found", status: "404" });
+    res.status(500).send({ message: "Server Error", status: "500" });
   }
 }
 
 module.exports = {
-    Create,
-    Read,
-    Update,
-    Delete,
-    
-  };
+  create_bookshelves,
+  get_bookshelves,
+  delete_bookshelves,
+  update_bookshelves,
+};

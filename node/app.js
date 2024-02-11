@@ -6,8 +6,10 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-const booksRouter = require("./routes/booksroutes");
+const booksRouter = require("./routes/books_routes");
+const bookshelf = require("./routes/bookshelves_routes");
 var app = express();
+
 const connectMongoDB = require("./config/db");
 connectMongoDB();
 
@@ -24,6 +26,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use("/books", booksRouter);
+app.use("/bookshelf", bookshelf);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));

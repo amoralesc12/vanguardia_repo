@@ -2,22 +2,23 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const books = new mongoose.Schema({
-  id: { type: Number, unique: true, required: true },
+  id:Number,
   name: { type: String, required: true },
   author: String,
   num_pages: Number,
   date_published: Date,
-  publisher: { type: String, require: true }, 
-  isbn: { type: String, require: true }, 
-  gender: { type: String, require: true }, 
-  comments: { type: String, require: true },
-  edition: { type: String, require: true },
+  publisher: String,
+  isbn: { type: String, required: true },
+  category:  String,  
+  comments: String,
+  edition: String,
 });
 
 const bookshelves = new mongoose.Schema({
-  id: { type: Number, unique: true, required: true },
+  id: Number,
   position: { type: String, required: true },
   category: { type: String, required: true },
+  books: String,
 });
 
 const book = mongoose.model("book", books);
